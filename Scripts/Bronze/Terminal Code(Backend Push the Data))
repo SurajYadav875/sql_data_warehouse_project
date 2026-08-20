@@ -1,0 +1,57 @@
+Terminal Code
+
+suraj@Unknown_fe:89:ee:75:e6:e6 ~ % psql -U postgres -d datawarehouse
+Password for user postgres: 
+psql (17.10, server 18.6)
+WARNING: psql major version 17, server major version 18.
+         Some psql features might not work.
+Type "help" for help.
+======================================================================
+**Upload the Data**
+
+datawarehouse=# \copy bronze.crm_cust_info FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/cust_info.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',');
+COPY 18494
+datawarehouse=# \copy bronze.crm_cust_info 
+\copy: parse error at end of line
+datawarehouse=# FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/prd_info.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',');
+ERROR:  syntax error at or near "FROM"
+LINE 1: FROM '/Users/suraj/Downloads/sql-data-warehouse-project/data...
+        ^
+datawarehouse=# \copy bronze.crm_prd_info FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/prd_info.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',');
+COPY 397
+\copy: parse error at "FROM'/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/sales_details"ource_crm/sales_details.csv' WITHdatawarehouse=# ADER TRUE, DELIMITER ',')
+datawarehouse=# \copy bronze.crm_sales_details FROM'/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/sales_details.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+\copy: parse error at "FROM'/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/sales_details"
+datawarehouse=# \copy bronze.crm_sales_details FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/sales_details.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+COPY 60398
+datawarehouse=# \copy bronze.erp_loc_a101 FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_erp/LOC_A101.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+COPY 18484
+datawarehouse=# \copy bronze.erp_cust_az12 FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_erp/CUST_AZ12.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+COPY 18484
+datawarehouse=# \copy bronze.erp_px_cat_glv2 FROM '/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_erp/PX_CAT_G1V2.csv' WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+COPY 37
+
+
+datawarehouse=# \q
+
+**Direct Uppload the local host server** 
+
+cp "/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/prd_info.csv" "/tmp/postgres_import/prd_info.csv"
+
+cp "/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/sales_details.csv" "/tmp/postgres_import/sales_details.csv"
+suraj@Unknown_fe:89:ee:75:e6:e6 ~ % cp "/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_crm/cust_info.csv" "/tmp/postgres_import/cust_info.csv"
+
+suraj@Unknown_fe:89:ee:75:e6:e6 ~ % cp "/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_erp/loc_a101.csv" "/tmp/postgres_import/loc_a101.csv"
+
+cp "/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_erp/cust_az12.csv" "/tmp/postgres_import/cust_az12.csv"
+
+cp "/Users/suraj/Downloads/sql-data-warehouse-project/datasets/source_erp/px_cat_g1v2.csv" "/tmp/postgres_import/px_cat_g1v2.csv"
+suraj@Unknown_fe:89:ee:75:e6:e6 ~ % ls -lh /tmp/postgres_import/
+total 10648
+-rw-r--r--@ 1 suraj  wheel   548K 20 Aug 02:42 cust_az12.csv
+-rw-r--r--@ 1 suraj  wheel   835K 20 Aug 02:42 cust_info.csv
+-rw-r--r--@ 1 suraj  wheel   393K 20 Aug 02:42 loc_a101.csv
+-rw-r--r--@ 1 suraj  wheel    26K 20 Aug 02:41 prd_info.csv
+-rw-r--r--@ 1 suraj  wheel   1.1K 20 Aug 02:42 px_cat_g1v2.csv
+-rw-r--r--@ 1 suraj  wheel   3.4M 20 Aug 02:41 sales_details.csv
+suraj@Unknown_fe:89:ee:75:e6:e6 ~ % 
