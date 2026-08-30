@@ -1,0 +1,194 @@
+--data quality check from bronze to  silver(crm_cust_info)
+
+Select * From  bronze.crm_cust_info;
+
+--Check for Nulls or Duplicates in Primary Key.
+--Excepations: no Result
+
+Select cst_id , Count (*)
+From bronze.crm_cust_info
+group by cst_id
+having Count (*)>1 or cst_id is Null
+
+--check unwanted Space
+--Excepations: no Result
+Select cst_firstname
+from bronze.crm_cust_info
+where cst_firstname != trim(cst_firstname) 
+
+Select cst_lastname
+from bronze.crm_cust_info
+where cst_lastname != trim(cst_lastname) 
+
+Select cst_key
+from bronze.crm_cust_info
+where cst_key != cst_key
+
+Select distinct cst_gndr from bronze.crm_cust_info;
+
+select distinct cst_marital_status from bronze.crm_cust_info;
+
+--data quality check from bronze to  silver(crm_prd_info)
+
+Select * From Bronze.crm_prd_info
+
+--Check for Nulls or Duplicates in Primary Key.
+
+Select prd_id , count(*)
+From Bronze.crm_prd_info
+group by prd_id
+having count(*)>1 and prd_id is Null
+
+
+--check unwanted Space
+
+select prd_nm
+from Bronze.crm_prd_info
+where prd_nm != trim(prd_nm)
+
+select prd_key
+from Bronze.crm_prd_info
+where prd_key != trim(prd_key)
+
+
+-- Check for NULLs or Negative Values in Cost
+Select prd_cost
+from Bronze.crm_prd_info
+where prd_cost < 0 or prd_cost is Null
+
+Select prd_cost
+from silver.crm_prd_info
+where prd_cost < 0 or prd_cost is Null
+
+-- Data Standardization & Consistency
+
+Select Distinct prd_line
+from Bronze.crm_prd_info
+
+
+Select Distinct prd_line
+from silver.crm_prd_info
+-- Check for Invalid Date Orders (Start Date > End Date)
+select *
+from Bronze.crm_prd_info
+where  prd_end_dt < prd_start_dt
+select * From Bronze.crm_prd_info;
+
+--Sliver Quality data checks(bronze-> silver.crm_sales_details)
+-- Check for Invalid Dates
+-- Expectation: No Invalid Dates
+SELECT 
+    NULLIF(sls_due_dt, 0) AS sls_due_dt 
+FROM bronze.crm_sales_details
+WHERE sls_due_dt <= 0 
+    OR LEN(sls_due_dt) != 8 
+    OR sls_due_dt > 20500101 
+    OR sls_due_dt < 19000101;
+
+Select Nullif(sls_due_dt,0)as sls_due_dt
+From bronze.crm_sales_details
+where sls_due_dt<=0
+	 or length(sls_due_dt)<=0
+	  OR sls_due_dt > 20500101
+	
+
+-- Check for Invalid Date Orders (Order Date > Shipping/Due Dates)
+-- Expectation: No Results
+SELECT 
+    distinct sls_sales
+FROM silver.crm_sales_details
+WHERE sls_order_dt > sls_ship_dt 
+   OR sls_order_dt > sls_due_dt;
+
+-- Check Data Consistency: Sales = Quantity * Price
+-- Expectation: No Result
+
+select distinct sls_sales,
+sls_quantity,
+sls_price
+from silver.crm_sales_details
+where sls_sales!= sls_quantity*sls_price
+	OR sls_sales is Null
+	or sls_quantity is Null
+	or sls_price is null
+	or sls_sales <= 0
+	or sls_quantity <= 0
+	or sls_price <= 0
+order by sls_sales,sls_quantity,sls_price;
+
+--Check Null in Table date
+SELECT
+    sls_order_dt
+FROM bronze.crm_sales_details
+WHERE sls_order_dt IS NULL
+   OR LENGTH(sls_order_dt::TEXT) <> 8
+ORDER BY sls_order_dt;
+
+
+SELECT
+    sls_ship_dt
+FROM bronze.crm_sales_details
+WHERE sls_ship_dt IS NULL
+   OR LENGTH(sls_ship_dt::TEXT) <> 8
+ORDER BY sls_ship_dt;
+
+SELECT
+    sls_due_dt
+FROM bronze.crm_sales_details
+WHERE sls_due_dt IS NULL
+   OR LENGTH(sls_due_dt::TEXT) <> 8
+ORDER BY sls_due_dt;
+
+    EXEC Silver.load_silver;
+
+
+-- Checking 'silver.erp_cust_az12'
+
+SELECT DISTINCT 
+    bdate 
+FROM silver.erp_cust_az12
+WHERE bdate < '1924-01-01' 
+   OR bdate > now();
+
+SELECT DISTINCT 
+    gen 
+FROM silver.erp_cust_az12;
+
+-- Checking 'silver.erp_loc_a101'
+
+SELECT DISTINCT 
+    cntry 
+FROM silver.erp_loc_a101
+ORDER BY cntry;
+
+
+-- Checking 'silver.erp_px_cat_g1v2'
+
+SELECT 
+    * 
+FROM silver.erp_px_cat_glv2
+WHERE cat != TRIM(cat) 
+   OR subcat != TRIM(subcat) 
+   OR maintenance != TRIM(maintenance);
+
+SELECT DISTINCT 
+    maintenance 
+FROM silver.erp_px_cat_glv2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
