@@ -1,3 +1,5 @@
+
+
 /*
 ===============================================================================
 Quality Checks
@@ -34,7 +36,7 @@ HAVING COUNT(*) > 1;
 SELECT 
     product_key,
     COUNT(*) AS duplicate_count
-FROM gold.dim_products
+FROM gold.dim_product
 GROUP BY product_key
 HAVING COUNT(*) > 1;
 
@@ -43,9 +45,9 @@ HAVING COUNT(*) > 1;
 -- ====================================================================
 -- Check the data model connectivity between fact and dimensions
 SELECT * 
-FROM gold.fact_sales f
+FROM gold.fact_tables f
 LEFT JOIN gold.dim_customers c
-ON c.customer_key = f.customer_key
-LEFT JOIN gold.dim_products p
-ON p.product_key = f.product_key
-WHERE p.product_key IS NULL OR c.customer_key IS NULL  
+ON c.customer_id = f.customer_id
+LEFT JOIN gold.dim_product p
+ON p.product_number = f.product_key
+WHERE p.product_number IS NULL OR c.customer_key IS NULL  
